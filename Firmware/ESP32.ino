@@ -35,7 +35,7 @@ void acceptByte(uint8_t b) {
         case PIXELS:
         frame[received++] = b;
         if (received == expectedBytes) {
-            for (uint16_t i = 0; i < NUM_LEDS; ++i) leds[i].setRGB(frame[3*i + 1], frame[3*i + 2]);
+            for (uint16_t i = 0; i < NUM_LEDS; ++i) leds[i].setRGB(frame[3*i], frame[3*i + 1], frame[3*i + 2]);
             FastLED.show();
             state = WAIT_A;
         }
