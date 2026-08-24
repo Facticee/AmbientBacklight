@@ -50,3 +50,35 @@ public:
         WriteFile(h_, buf.data(), static_cast<DWORD>(buf.size()), &written, nullptr);
     }
 };
+
+int wmain(int argc, wchar_t** argv) {
+    const std::wstring port = argc > 1 ? argv[1] : L"COM3";
+    Serial serial(port);
+
+    ComPtr<ID3D11Device> device;
+    ComPtr<ID3D11DeviceContext> context;
+    if (FAILED(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 
+        D3D11_CREATE_DEVICE_BGRA_SUPPORT, nullptr, 0, D3D11_SDK_VERSION, &device, nullptr, &context))) {
+        std::cerr << "D3D11 Init failed\n";
+        return 1;
+    }
+
+    // gemini helped me with that list
+    ComPtr<IDXGIDevice> dxgiDevice;
+    ComPtr<IDXGIAdapter> adapter;
+    ComPtr<IDXGIOutput> output;
+    ComPtr<IDXGIOutput1> output1;
+    ComPtr<IDXGIOutputDuplication> dupl;
+
+    device.As(&dxgiDevice);
+    dxgiDevice->GetAdapter(&adapter);
+    adapter->EnumOutputs(0, &output);
+    output.As(&output1);
+
+    if (FAILED(output1->DuplicateOutput(device.Get(), &dupl))) {
+        std::cerr << "Desktop duplication failed\n";
+        return 1;
+    }
+
+    std::cout << "Screen capture is running" << std::string(port.begin(), port.end()) << "...\n";
+}
