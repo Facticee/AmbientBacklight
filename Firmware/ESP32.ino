@@ -9,7 +9,7 @@ CRGB leds[NUM_LEDS];
 
 enum State { WAIT_A, WAIT_D, WAIT_A2, PIXELS };
 State state = WAIT_A;
-uint16_t receivedBytes = 0;
+uint16_t expectedBytes = 0, received = 0;
 
 void setup() {
     FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS);
