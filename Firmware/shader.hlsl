@@ -54,8 +54,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
     float3 sum = 0;
     [loop] for (uint y = 0; y < samplesDeep; ++y)
-    [loop] for (uint x = 0; x < samplesDeep; ++x) {
-        float2 p = lerp(low, high, (float2(x, y) + 0.5) / float2(sampleAcross, samplesDeep));
+    [loop] for (uint x = 0; x < samplesAcross; ++x) {
+        float2 p = lerp(low, high, (float2(x, y) + 0.5) / float2(samplesAcross, samplesDeep));
         uint2 pixel = min(uint2(p), uint2(screenWidth - 1, screenHeight - 1));
         sum += ToLinear(desktop.Load(int3(pixel, 0)).rgb);
     }
