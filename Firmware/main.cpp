@@ -16,6 +16,11 @@ using Microsoft::WRL::ComPtr;
 constexpr UINT LED_COUNT = 90;
 constexpr UINT BAUD = 115200;
 
+struct alignas(16) Settings {
+    UINT width, height, borderDepth, samplesAcross, samplesDeep;
+    float saturationBoost, brightness;
+};
+
 static void Check(HRESULT hr, const char* what) {
     if (FAILED(hr)) { std::cerr << what << " failed: 0x" << std::hex << (unsigned)hr << '\n'; std::exit(1); }
 }
