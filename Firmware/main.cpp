@@ -96,4 +96,25 @@ int wmain(int argc, wchar_t** argv) {
     ComPtr<ID3D11ComputeShader> shader;
     Check(device->CreateComputeShader(code->GetBufferPointer(), code->GetBufferSize(), NULL, &shader), "CreateComputerShader");
 
+    
+
+    D3D11_BUFFER_DESC bd = {};
+    bd.ByteWidth = LED_COUNT * sizeof(UINT);
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+    bd.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+    bd.StructureByteStride = sizeof(UINT);
+
+    ComPtr<ID3D11Buffer> resultBuffer;
+    Check(device->CreateBuffer(&bd, NULL, &resultBuffer), "Result Buffer");
+    
+    D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+    uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+    uavDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+    uavDesc.Buffer.NumElements = LED_COUNT;
+
+    ComPtr<ID3D11UnorderedAccessView> uav;
+    Check(device->CreateUnorderedAccessView(resultBuffer.Get(), &uavDesc, &uav), "Creat UAV");
+    
+
 }
