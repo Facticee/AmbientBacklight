@@ -81,4 +81,19 @@ int wmain(int argc, wchar_t** argv) {
     ComPtr<IDXGIOutput1> output1; Check(output.As(&output1), "IDXGIOutput1");
     ComPtr<IDXGIOutputDuplication> duplication; Check(output1->DuplicateOutput(device.Get(), &duplication), "DuplicateOutput");
 
+
+    wchar_t pathBuf[MAX_PATH];
+    GetModuleFileNameW(NULL, pathBuf, MAX_PATH);
+    std::filesystem::path shaderPath = std::filesystem::path(pathBuf).parent_path() / L"shader.hlsl";
+
+    ComPtr<ID3DBlob> code, errors;
+    HRESULT hr = D3DCompileFromFile(shaderPath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "CSMain", "cs_5_0", 0, 0, &code, &errors);
+    if (FAILED(hr)) {
+        if (errors) std::cout << (char*)errors->GetBufferPointer() << "\n";
+        Check(hr, "Shader kompilierung fehlgeschlagen");
+    }
+
+    ComPtr<ID3D11ComputeShader> shader;
+    Check(device->CreateComputeShader(code->GetBufferPointer(), code->GetBufferSize(), NULL, &shader), "CreateComputerShader");
+
 }
