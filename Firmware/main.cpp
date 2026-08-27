@@ -141,4 +141,52 @@ int wmain(int argc, wchar_t** argv) {
     }
 
 
+
+    while (true) {
+        DXGI_OUTDUPL_FRAME_INFO info {}; ComPtr<IDXGIResource> resource;
+        HRESULT hr = duplication->AcquireNextFrame(16, &info, &resource);
+        if (hr == DXGI_ERROR_WAIT_TIMEOUT) continue;
+        if (hr == DXGI_ERROR_ACCES_LOST) break;
+        Check(hr, "AcquireNextFrame");
+
+        ComPtr<ID3D11Texture2D> desktop; Check(resource.As(&desktop), "Desktop texture");
+        D3D11_TEXTURE2D_DESC desc{}; desktop->GetDesc(&desc);
+        s.width = desc.Width; s.height = desc.Height;
+
+        ComPtr<ID3D11ShaderResourceView> srv; Check(device->CreateShaderResourceView(desktop.Get(), nullptr, &srv), "Create desktop SRV");
+        
+        D3D11_MAPPED_SUBRESOURCE mapped{};
+        Check(context->Map(constants.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped), "Map constants");
+        *(Settings*)mapped.pData = s;
+        context->Unmap(constants.Get(), 0);
+
+        ID3D11ShaderResourceView* srvArray[] = { srv.Get() };
+        ID3D11UnorderedAccesView* uavArray[] = { uav.Get() };
+        ID3D11Buffer* cbArray[] = { constants.Get() };
+
+        context->CSSetShader(shader.Get(), nullptr, 0);
+        context->CSSetShaderResources(0, 1, srvArray);
+        context->CSSetUnorderedAccessViews(0, 1, uavArray, nullptr);
+        context->CSSetConstantBuffers(0, 1, cbArray);
+        context->Dispatch(1, 1, 1);
+
+        ID3D11ShaderResourceView* nullSRV = nullptr;
+        ID3D11UnorderedAccessView* nullUAV = nullptr;
+        context->CSSetShaderResources(0, 1, &nullSRV);
+        context->CSSetUnorderedAccesViews(0, 1, &nullUAV, nullptr);
+        duplication->ReleaseFrame();
+
+
+        sendCompleted();
+        for (auto& r : readbacks) {
+            if (!r.pending) {
+                context->CopyResource(r.buffer.Get(), result.Get());
+                context->End(r.query.Get());
+                r.pending = true;
+                break;
+            }
+        }
+        sendCompleted;
+    }
+    return 0;
 }
