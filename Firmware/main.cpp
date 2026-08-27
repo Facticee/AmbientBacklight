@@ -116,5 +116,29 @@ int wmain(int argc, wchar_t** argv) {
     ComPtr<ID3D11UnorderedAccessView> uav;
     Check(device->CreateUnorderedAccessView(resultBuffer.Get(), &uavDesc, &uav), "Creat UAV");
     
+    Settings s{ 0, 0, 144, 12, 10, 1.0f, 1.0f };
+    D3D11_BUFFER_DESC cb{ sizeof(Settings), D3D11_USAGE_DYNAMIC, D3D11_BIND_CONSTANT_BUFFER, D3D11_CPU_ACCES_WRITE };
+    ComPtr<ID3D11Buffer> constants; Check(device->CreateBuffer(&cb, nullptr, &constants), "Create constants");
+
+    Readback readbacks[3]{};
+    for (auto& r : readbacks) {
+        D3D11_BUFFER_DESC t{ LED_COUNT * sizeof(UINT), D3D11_USAGE_STAGING, 0, D3D11_CPU_ACCESS_READ };
+        Check(device->CreateBuffer(&t, nullptr, &r.buffer), "Staging buffer");
+        D3D11_QUERY_DESC q{ D3D11_QUERY_EVENT, 0 }; Check(device->CreateQuery(&q, &r.query), "Query");
+    }
+
+    std::cout << "Ambilight running on " << std::string(port.begin(), port.end()) << " Crtl + C sto stop \n";
+    auto sendCompleted = [&] {
+        for (auto& r : readbacks) {
+            if (r.pending && context->GetData(r.queray.Get(), nullptr, 0, 0) == S_OK) {
+                D3D11_MAPPED_SUBRESOURCE m{};
+                if (SUCCEEDED(context->Map(r.buffer.Get(), 0, D3D11_MAP_READ, 0, &m))) {
+                    serial.send((const UINT*)m.pData);
+                    context->Unmap(r.buffer.Get(), 0);
+                }
+            }
+        }
+    }
+
 
 }
