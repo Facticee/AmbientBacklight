@@ -7,9 +7,7 @@ A fast custom Ambilight setup for your PC monitor. It captures screen edge color
 - **USB Serial:** Data transfer at 115200 Baud.
 
 ## CAD
-Since this project uses components, no custom 3D printed case or PCB was needed. Everything is mounted directly to the back of the monitor (or near it).
-Here is the basic Circuit. I will change the breadboard with two WAGOs 221-413 (splicing connectors). If you want to see a closeup of the connections with the ESP32, look under CAD in main.
-<img width="1270" height="817" alt="Screenshot 2026-08-28 013857" src="https://github.com/user-attachments/assets/fe401d4a-2a0f-4684-a0ed-863bae9ae42b" />
+I did use any CAD for this project because i simply dont need it, but if you want to design a case for it you can do that.
 
 ## Firmware & Software
 - **ESP32:** Uses Arduino C++ with the `FastLED` library (or similar Adalight-compatible firmware) to map serial bytes to the LEDs.
@@ -17,11 +15,23 @@ Here is the basic Circuit. I will change the breadboard with two WAGOs 221-413 (
 
 ## BOM (Bill of Materials)
 (More detailed list found in the BOM.csv file above - **Note that the components in the file are the things I boguht not including things I already had at home!**)
-- 1x ESP32 Dev Board (NodeMCU / DevKit V1)
-- 1x WS2812B LED Strip (Depending on the energy class, you might need a DC Power Supply with 6A rather than 5A)
-- 1x DC 5V 5A Power Supply (5.5 x 2.5mm jack)
-- 1x DC Barrel Jack Adapter (5.5 x 2.5mm)
-- 2x WAGO 221 Lever Connectors (3-wire)
-- 1x USB Data Cable (USB-C for ESP32)
-- 1x Dupont Jumper Wires
-- Double-sided foam tape & Electrical tape (optional)
+### Main components:
+
+- 1x ESP32-S3-MINI-1 module
+- 1x WS2812B LED strip (~90 LEDs)
+- 1x 5V DC power supply, minimum 5A
+- 1x USB-C data cable
+- 1x Custom PCB made out of:
+
+
+### PCB components:
+
+- 1x CUI PJ-102AH DC barrel jack (5.5mm outer / 2.0mm center)
+- 1x C&K OS102011MS2Q slide switch (Power on / off)
+- 1x Littelfuse 0452005.MRL 5A fuse
+- 1x TPS259480 eFuse
+- 1x TPSM828224 3.3V buck converter
+- 1x 74AHCT125 shifter
+- 1x USBLC6-2SC6 USB ESD protection
+- 1x Phoenix MKDS 1.5/3-5.08 LED output
+- Resistors, capacitors
